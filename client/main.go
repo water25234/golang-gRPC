@@ -29,7 +29,7 @@ func main() {
 	fmt.Println("Hello Response: ", r.GetReply())
 
 	userConn := pbUser.NewUserServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel = context.WithTimeout(context.Background(), time.Second)
 	resp, err := userConn.Login(ctx, &pbUser.LoginRequest{
 		Username: "zxc@gmail.com",
 		Password: "qwaszx",

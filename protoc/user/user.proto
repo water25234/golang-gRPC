@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+service UserService {
+    rpc Login (LoginRequest) returns (LoginResponse);
+}
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    int64 userID = 1;
+    string username = 2;
+    string password = 3;
+    string name = 4;
+    string email = 5;
+    string nickname = 6;
+}
+
+message Person {
+    string name = 1;
+    int32 id = 2;
+    string email = 3;
+  
+    enum PhoneType {
+        MOBILE = 0;
+        HOME = 1;
+        WORK = 2;
+    }
+  
+    message PhoneNumber {
+        string number = 1;
+        PhoneType type = 2;
+    }
+  
+    repeated PhoneNumber phones = 4;
+  }
+  
+  message AddressBook {
+    repeated Person people = 1;
+  }

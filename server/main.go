@@ -5,17 +5,34 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/water25234/golang-gRPC/protoc/hello"
+	pbHello "github.com/water25234/golang-gRPC/protoc/hello"
+	pbUser "github.com/water25234/golang-gRPC/protoc/user"
 	"google.golang.org/grpc"
 )
 
 type service struct {
-	pb.UnimplementedHelloServiceServer
+	pbHello.UnimplementedHelloServiceServer
+	pbUser.UnimplementedUserServiceServer
 }
 
-func (s *service) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloResponse, error) {
+func (s *service) SayHello(ctx context.Context, in *pbHello.HelloRequest) (*pbHello.HelloResponse, error) {
 	log.Printf("Received: %v", in.GetGreeting())
-	return &pb.HelloResponse{Reply: "Hello, " + in.GetGreeting()}, nil
+	return &pbHello.HelloResponse{Reply: "Hello, " + in.GetGreeting()}, nil
+}
+
+func (s *service) Login(ctx context.Context, in *pbUser.LoginRequest) (*pbUser.LoginResponse, error) {
+	log.Printf("Received: %v", map[string]interface{}{
+		"userName": in.GetUsername(),
+		"password": in.GetPassword(),
+	})
+	return &pbUser.LoginResponse{
+		UserID:   3000,
+		Username: in.GetUsername(),
+		Password: in.GetPassword(),
+		Name:     "Justin Huang",
+		Email:    "water@gmail.com",
+		Nickname: "Shun",
+	}, nil
 }
 
 func main() {
@@ -27,8 +44,16 @@ func main() {
 
 	log.Println("Server listening on", addr)
 	gRPCServer := grpc.NewServer()
-	pb.RegisterHelloServiceServer(gRPCServer, &service{})
+
+	// Hello protoc
+	pbHello.RegisterHelloServiceServer(gRPCServer, &service{})
 	if err := gRPCServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Fatalf("Hello failed to serve: %v", err)
+	}
+
+	// User protoco
+	pbUser.RegisterUserServiceServer(gRPCServer, &service{})
+	if err := gRPCServer.Serve(lis); err != nil {
+		log.Fatalf("User failed to serve: %v", err)
 	}
 }

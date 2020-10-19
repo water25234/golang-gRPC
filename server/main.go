@@ -10,17 +10,20 @@ import (
 	"google.golang.org/grpc"
 )
 
-type service struct {
+type helloService struct {
 	pbHello.UnimplementedHelloServiceServer
+}
+
+type userService struct {
 	pbUser.UnimplementedUserServiceServer
 }
 
-func (s *service) SayHello(ctx context.Context, in *pbHello.HelloRequest) (*pbHello.HelloResponse, error) {
+func (s *helloService) SayHello(ctx context.Context, in *pbHello.HelloRequest) (*pbHello.HelloResponse, error) {
 	log.Printf("Received: %v", in.GetGreeting())
 	return &pbHello.HelloResponse{Reply: "Hello, " + in.GetGreeting()}, nil
 }
 
-func (s *service) Login(ctx context.Context, in *pbUser.LoginRequest) (*pbUser.LoginResponse, error) {
+func (s *userService) Login(ctx context.Context, in *pbUser.LoginRequest) (*pbUser.LoginResponse, error) {
 	log.Printf("Received: %v", map[string]interface{}{
 		"userName": in.GetUsername(),
 		"password": in.GetPassword(),
@@ -46,13 +49,11 @@ func main() {
 	gRPCServer := grpc.NewServer()
 
 	// Hello protoc
-	pbHello.RegisterHelloServiceServer(gRPCServer, &service{})
-	if err := gRPCServer.Serve(lis); err != nil {
-		log.Fatalf("Hello failed to serve: %v", err)
-	}
+	pbHello.RegisterHelloServiceServer(gRPCServer, &helloService{})
 
 	// User protoco
-	pbUser.RegisterUserServiceServer(gRPCServer, &service{})
+	pbUser.RegisterUserServiceServer(gRPCServer, &userService{})
+
 	if err := gRPCServer.Serve(lis); err != nil {
 		log.Fatalf("User failed to serve: %v", err)
 	}
